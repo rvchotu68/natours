@@ -19,8 +19,28 @@ exports.getAllToursData = async (req, res) => {
 
   // SORT
   if (req.query.sort) {
-    query = query.sort(req.query.sort);
+    const sortStr = req.query.sort.split(',').join(' ');
+    query = query.sort(sortStr);
   } else query = query.sort('-createdAt');
+
+  //Limiting
+  if (req.query.fields) {
+    const fieldsStr = req.query.fields.split(',').join(' ');
+    query = query.select(fieldsStr);
+  } else query = query.select('-__v');
+
+  //Pagination
+  const page = req.query.page * 1 || 1;
+  const limit = req.query.limit * 1 || 10;
+  const skip = (page - 1) * limit;
+
+  query = query.skip(skip).limit(limit);
+
+  if (req.query.page) {
+    const toursCount = Tour.countDocuments();
+    if (skip >= toursCount)
+      throw new Error("Didn't find  the page looking for. ");
+  }
 
   const tourData = await Tour.find(query);
   return tourData;
