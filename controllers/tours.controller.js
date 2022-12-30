@@ -4,7 +4,11 @@ const {
   addNewTourData,
   updateTourData,
   deleteTourData,
+  getTourStatsData,
+  getMonthlyPlanData,
 } = require('../services/tours.service');
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = '5';
@@ -13,59 +17,60 @@ exports.aliasTopTours = (req, res, next) => {
   next();
 };
 
-exports.getAllTours = async (req, res) => {
-  try {
-    const tours = await getAllToursData(req, res);
-    res.status(200).json({
-      status: 'success',
-      results: tours.length,
-      data: {
-        tours,
-      },
-    });
-  } catch (err) {
-    res.send(500).json({ status: 'fail', message: err });
-  }
-};
+exports.getAllTours = catchAsync(async (req, res, next) => {
+  const tours = await getAllToursData(req, res);
+  res.status(200).json({
+    status: 'success',
+    results: tours.length,
+    data: {
+      tours,
+    },
+  });
+});
+
 // console.log(__dirname);
-exports.addNewTour = async (req, res) => {
-  try {
-    const response = await addNewTourData(req.body);
-    res.status(201).json({ status: 'success', data: response });
-  } catch (err) {
-    res.status(400).json({ status: 'fail', message: err });
-  }
-};
+exports.addNewTour = catchAsync(async (req, res, next) => {
+  const response = await addNewTourData(req.body);
+  res.status(201).json({ status: 'success', data: response });
+});
 
-exports.getTour = async (req, res) => {
+exports.getTour = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  try {
-    const tourData = await getTourData(id);
-    res.status(200).json({ status: 'success', data: { tourData } });
-  } catch (err) {
-    res.status(400).json({ status: 'fail', message: err });
-  }
-};
+  const tourData = await getTourData(id);
+  if (!tourData.length) return next(new AppError('No tour found', 404));
+  res.status(200).json({ status: 'success', data: { tourData } });
+});
 
-exports.updateTour = async (req, res) => {
+exports.updateTour = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  try {
-    const response = await updateTourData(id, req.body);
-    res.status(200).json({ status: 'success', data: { response } });
-  } catch (err) {
-    res.status(400).json({ status: 'fail', message: err });
-  }
-};
+  const tour = await updateTourData(id, req.body);
+  if (!tour.length) return next(new AppError('No tour found', 404));
+  res.status(200).json({ status: 'success', data: { tour } });
+});
 
-exports.deleteTour = async (req, res) => {
+exports.deleteTour = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  try {
-    await deleteTourData(id, req.body);
-    res.status(204).json({ status: 'success', data: null });
-  } catch (err) {
-    res.status(400).json({ status: 'fail', message: err });
-  }
-};
+  await deleteTourData(id, req.body);
+  res.status(204).json({ status: 'success', data: null });
+});
+
+exports.getTourStats = catchAsync(async (req, res, next) => {
+  const data = await getTourStatsData();
+  // console.log(data);
+  res.status(200).json({
+    status: 'success',
+    message: data,
+  });
+});
+
+exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
+  const data = await getMonthlyPlanData(req.params.year * 1);
+  // console.log(data);
+  res.status(200).json({
+    status: 'success',
+    message: data,
+  });
+});
 
 // exports.checkID = (req, res, next, val) => {
 //   if (req.params.id * 1 > tours.length) {

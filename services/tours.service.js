@@ -1,89 +1,115 @@
 const Tour = require('../models/tour.model');
+const ApiFeatures = require('../utils/apiFeatures');
 
 exports.getAllToursData = async (req, res) => {
-  // eslint-disable-next-line no-useless-catch
-  const queryObj = { ...req.query };
-  const excludedFields = ['page', 'sort', 'limit', 'fields'];
-  excludedFields.forEach((ele) => delete queryObj[ele]);
+  const features = new ApiFeatures(Tour.find({}), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .pagination();
 
-  // This is for advance filtering
-  let queryString = JSON.stringify(queryObj);
-  queryString = queryString.replace(
-    /\b(gte|gt|lte|lt)\b/g,
-    (match) => `$${match}`
-  );
-  /**
-   * The above code snippet checks for get ,gt,lte and lt and replaces them with $gte , $lt, $lte and $gt
-   */
-  let query = Tour.find(JSON.parse(queryString));
-
-  // SORT
-  if (req.query.sort) {
-    const sortStr = req.query.sort.split(',').join(' ');
-    query = query.sort(sortStr);
-  } else query = query.sort('-createdAt');
-
-  //Limiting
-  if (req.query.fields) {
-    const fieldsStr = req.query.fields.split(',').join(' ');
-    query = query.select(fieldsStr);
-  } else query = query.select('-__v');
-
-  //Pagination
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 10;
-  const skip = (page - 1) * limit;
-
-  query = query.skip(skip).limit(limit);
-
-  if (req.query.page) {
-    const toursCount = Tour.countDocuments();
-    if (skip >= toursCount)
-      throw new Error("Didn't find  the page looking for. ");
-  }
-
-  const tourData = await Tour.find(query);
+  const tourData = await features.query;
   return tourData;
 };
 
 exports.addNewTourData = async (data) => {
-  // eslint-disable-next-line no-useless-catch
-  try {
-    const response = await Tour.create(data);
-    return response;
-  } catch (err) {
-    throw err;
-  }
+  const response = await Tour.create(data);
+  return response;
 };
 
 exports.getTourData = async (id) => {
   // eslint-disable-next-line no-useless-catch
-  try {
-    const tourData = await Tour.find({ _id: id });
-    return tourData;
-  } catch (err) {
-    throw err;
-  }
+  const tourData = await Tour.find({ _id: id });
+  return tourData;
 };
 
-exports.deleteTourData = async (id) => {
-  // eslint-disable-next-line no-useless-catch
-  try {
-    return await Tour.findByIdAndDelete(id);
-  } catch (err) {
-    throw err;
-  }
-};
+exports.deleteTourData = async (id) => await Tour.findByIdAndDelete(id);
 
 exports.updateTourData = async (id, data) => {
   // eslint-disable-next-line no-useless-catch
-  try {
-    const tourData = await Tour.findByIdAndUpdate(id, data, {
-      new: true,
-      runValidators: true,
-    });
-    return tourData;
-  } catch (err) {
-    throw err;
-  }
+  const tourData = await Tour.findByIdAndUpdate(id, data, {
+    new: true,
+    runValidators: true,
+  });
+  return tourData;
+};
+
+exports.getTourStatsData = async () => {
+  const stats = await Tour.aggregate([
+    {
+      $match: { ratingsAverage: { $gte: 4.5 } },
+    },
+    {
+      $group: {
+        _id: {
+          $toUpper: '$difficulty',
+        },
+        numTour: {
+          $sum: 1,
+        },
+        numRatings: {
+          $sum: '$ratingsQuantity',
+        },
+        avgRating: {
+          $avg: '$ratingsAverage',
+        },
+        avgPrice: {
+          $avg: '$price',
+        },
+        minPrice: {
+          $min: '$price',
+        },
+        maxPrice: {
+          $max: '$price',
+        },
+      },
+    },
+    {
+      $sort: { avgPrice: 1 },
+    },
+  ]);
+  return stats;
+};
+
+exports.getMonthlyPlanData = async (year) => {
+  const data = await Tour.aggregate([
+    {
+      $unwind: '$startDates',
+    },
+    {
+      $match: {
+        startDates: {
+          $gte: new Date(`${year}-01-01`),
+          $lte: new Date(`${year}-12-31`),
+        },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          $month: '$startDates',
+        },
+        numTourStarts: {
+          $sum: 1,
+        },
+        tours: {
+          $push: '$name',
+        },
+      },
+    },
+    {
+      $addFields: {
+        month: '$_id',
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+      },
+    },
+    {
+      $sort: { numTourStarts: -1 },
+    },
+  ]);
+  return data;
 };

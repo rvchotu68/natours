@@ -1,3 +1,8 @@
+process.on('uncaughtException', (err) => {
+  console.log(err.name, err.message);
+  process.exit(1);
+});
+
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 
@@ -18,10 +23,17 @@ mongoose
   })
   .then(() => {
     console.log('Connected to the dbs');
-  })
-  .catch((err) => console.log(err));
+  });
 
 const { PORT } = process.env;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
+});
+
+process.on('unhandledRejection', (err) => {
+  console.log(err.name, err.message);
+  server.close(() => {
+    console.log('Shutting down the server.');
+    process.exit(1);
+  });
 });
