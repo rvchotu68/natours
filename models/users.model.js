@@ -42,6 +42,11 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 //Hashing the password to sage guard it against the attacks
@@ -58,11 +63,15 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-userSchema.pre('save',function(next){
-
-  if(!this.isModified('password') || this.isNew) return next();
-  console.log("passwordChangedAt");
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+  console.log('passwordChangedAt');
   this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
+userSchema.pre(/^find/, function (next) {
+  this.find({ active: { $ne: false } });
   next();
 });
 

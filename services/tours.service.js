@@ -12,22 +12,22 @@ exports.getAllToursData = async (req, res) => {
   return tourData;
 };
 
-exports.addNewTourData = async (data) => {
-  const response = await Tour.create(data);
+exports.addNewTourData = async (req) => {
+  const response = await Tour.create(req.body);
   return response;
 };
 
 exports.getTourData = async (id) => {
   // eslint-disable-next-line no-useless-catch
-  const tourData = await Tour.find({ _id: id });
+  const tourData = await Tour.find({ _id: id }).populate('reviews');
   return tourData;
 };
 
 exports.deleteTourData = async (id) => await Tour.findByIdAndDelete(id);
 
-exports.updateTourData = async (id, data) => {
+exports.updateTourData = async (id, req) => {
   // eslint-disable-next-line no-useless-catch
-  const tourData = await Tour.findByIdAndUpdate(id, data, {
+  const tourData = await Tour.findByIdAndUpdate(id, req.body, {
     new: true,
     runValidators: true,
   });

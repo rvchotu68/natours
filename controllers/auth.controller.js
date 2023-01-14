@@ -1,23 +1,26 @@
-const UserService = require('../services/auth.service');
+const AuthService = require('../services/auth.service');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const sendMail = require('../utils/email');
 const User = require('../models/users.model');
+const { deleteUserService } = require('../services/auth.service');
+const handlerFactory = require('../utils/handler.factory');
 
 exports.signup = catchAsync(async (req, res, next) => {
-  const data = await UserService.signupService(req);
+  const data = await AuthService.signupService(req);
 
-  UserService.sendCreatedToken(data, 200, res);
+  AuthService.sendCreatedToken(data, 200, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
   //check if email and password are provided by the user or not.
   const { email, password } = req.body;
+  // console.log({ password, email });
   if (!email || !password)
     return next(new AppError('Please provide email and password', 400));
 
   // check if the email exists and password is correct, If the user is verified then return a jwtToken
-  const jwtToken = await UserService.loginService(email, password);
+  const jwtToken = await AuthService.loginService(email, password);
 
   if (!jwtToken) return next(new AppError('Invalid email or password', 401));
 
@@ -44,11 +47,11 @@ exports.verifyUser = catchAsync(async (req, res, next) => {
   // console.log(jwtToken);
 
   //Verify JWTToken
-  const decodedJWTToken = await UserService.verifyJWTToken(jwtToken);
+  const decodedJWTToken = await AuthService.verifyJWTToken(jwtToken);
   // console.log('decodedJWTToken', decodedJWTToken);
 
   //Check if user still exists
-  const user = await UserService.getUserById(decodedJWTToken.id);
+  const user = await AuthService.getUserById(decodedJWTToken.id);
   if (!user)
     return next(
       new AppError(
@@ -86,7 +89,7 @@ exports.restrictTo =
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   //get the user details using the email and throw error if the user is not found in the db.
   const { email } = req.body;
-  const user = await UserService.getUserByEmail(email);
+  const user = await AuthService.getUserByEmail(email);
   if (!user)
     return next(
       new AppError('There is no user with the given email address.', 404)
@@ -132,12 +135,12 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   //Get the user based on reset token sent to the user and check if the token has expired or not.
 
-  const hashedResetToken = await UserService.createPasswordRestTokenHash(
+  const hashedResetToken = await AuthService.createPasswordRestTokenHash(
     resetToken
   );
   console.log({ hashedResetToken });
 
-  const user = await UserService.getUserByResetToken(hashedResetToken);
+  const user = await AuthService.getUserByResetToken(hashedResetToken);
 
   if (!user) return next(new AppError('Invalid token or expired.', 400));
 
@@ -153,7 +156,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   //update passwordChangedAt property for user.
 
   //Log the user in and send jwt token.
-  UserService.sendCreatedToken(user, 200, res);
+  AuthService.sendCreatedToken(user, 200, res);
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
@@ -183,5 +186,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   user.confirmPassword = confirmNewPassword;
   await user.save();
   // Login the user and send new jwt token.
-  UserService.sendCreatedToken(user, 200, res);
+  AuthService.sendCreatedToken(user, 200, res);
 });
+
+exports.deleteUser = handlerFactory.DeleteOne(deleteUserService);

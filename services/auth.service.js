@@ -4,15 +4,16 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/users.model');
 
-class UserService {
+class AuthService {
   async signupService(req) {
-    const { name, email, password, confirmPassword } = req.body;
+    const { name, email, password, confirmPassword, role } = req.body;
 
     const data = await User.create({
       name,
       email,
       password,
       confirmPassword,
+      role,
     });
     return data;
   }
@@ -63,12 +64,26 @@ class UserService {
 
   async sendCreatedToken(user, statusCode, res) {
     const jwtToken = await this.createJWTToken(user._id);
+    const cookieOptions = {
+      expires: new Date(
+        Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+      ),
+      httpOnly: true,
+    };
+
+    if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+    user.password = undefined;
+    res.cookie('jwtToken', jwtToken, cookieOptions);
     res.status(statusCode).json({
       status: 'success',
       jwtToken,
       user,
     });
   }
+
+  async deleteUserService(id) {
+    return await User.findByIdAndDelete(id);
+  }
 }
 
-module.exports = new UserService();
+module.exports = new AuthService();
