@@ -17,25 +17,6 @@ exports.aliasTopTours = (req, res, next) => {
   req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
   next();
 };
-
-exports.getAllTours = catchAsync(async (req, res, next) => {
-  const tours = await getAllToursData(req, res);
-  res.status(200).json({
-    status: 'success',
-    results: tours.length,
-    data: {
-      tours,
-    },
-  });
-});
-
-exports.getTour = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-  const tourData = await getTourData(id);
-  if (!tourData.length) return next(new AppError('No tour found', 404));
-  res.status(200).json({ status: 'success', data: { tourData } });
-});
-
 exports.getTourStats = catchAsync(async (req, res, next) => {
   const data = await getTourStatsData();
   // console.log(data);
@@ -44,7 +25,6 @@ exports.getTourStats = catchAsync(async (req, res, next) => {
     message: data,
   });
 });
-
 exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
   const data = await getMonthlyPlanData(req.params.year * 1);
   // console.log(data);
@@ -54,6 +34,8 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.getAllTours = handlerFactory.getAll(getAllToursData);
+exports.getTour = handlerFactory.getOne(getTourData);
 exports.updateTour = handlerFactory.updateOne(updateTourData);
 exports.deleteTour = handlerFactory.DeleteOne(deleteTourData);
 exports.addNewTour = handlerFactory.createOne(addNewTourData);

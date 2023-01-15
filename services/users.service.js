@@ -1,8 +1,11 @@
 const User = require('../models/users.model');
+const ApiFeatures = require('../utils/apiFeatures');
 
 class UsersService {
-  async getAllUsersDetails() {
-    return await User.find();
+  async getAllUsersDetails(req, filter) {
+    const filters = new ApiFeatures(User.find(filter), req.query);
+    filters.applyFilters();
+    return await filters.query;
   }
 
   filterObj(dataObj, ...fields) {
@@ -10,13 +13,14 @@ class UsersService {
     Object.keys(dataObj).forEach((ele) => {
       if (fields.includes(ele)) updatedObject[ele] = dataObj[ele];
     });
-    console.log({ updatedObject });
+    // console.log({ updatedObject });
     return updatedObject;
   }
 
   async updateUserDetails(id, req) {
+    console.log('updateUserDetails');
     let updatedData;
-    console.log('req', req);
+    // console.log('req', req);
     req.user.role === 'admin'
       ? (updatedData = req.body)
       : (updatedData = this.filterObj(req.body, 'name', 'email'));
@@ -30,6 +34,10 @@ class UsersService {
 
   async deleteUserAcc(user) {
     await User.findByIdAndUpdate(user._id, { active: false });
+  }
+
+  async getUserService(id) {
+    return await User.findById(id);
   }
 }
 

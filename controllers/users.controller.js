@@ -1,18 +1,16 @@
 const catchAsync = require('../utils/catchAsync');
 const UserService = require('../services/users.service');
 const handlerFactory = require('../utils/handler.factory');
-const { updateUserDetails } = require('../services/users.service');
-exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await UserService.getAllUsersDetails();
+const {
+  updateUserDetails,
+  getUserService,
+  getAllUsersDetails,
+} = require('../services/users.service');
 
-  res.status(200).json({
-    status: 'success',
-    users,
-  });
-});
+exports.getAllUsers = handlerFactory.getAll(getAllUsersDetails);
 exports.addNewUser = catchAsync((req, res, next) => {});
-exports.getUser = catchAsync((req, res, next) => {});
-
+exports.getUser = handlerFactory.getOne(getUserService);
+exports.getMe = handlerFactory.getOne(getUserService);
 exports.updateUser = handlerFactory.updateOne(updateUserDetails);
 
 exports.updateMe = catchAsync(async (req, res, next) => {

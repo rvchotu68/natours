@@ -44,6 +44,10 @@ class ApiFeatures {
 
     return this;
   }
+
+  applyFilters(apiObj) {
+    this.filter().sort().limitFields().pagination();
+  }
 }
 
 module.exports = ApiFeatures;

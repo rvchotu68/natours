@@ -52,9 +52,12 @@ const userSchema = new mongoose.Schema({
 //Hashing the password to sage guard it against the attacks
 
 userSchema.pre('save', async function (next) {
+  console.log('pre1');
   //Check whether the password is modified or not.
   if (!this.isModified('password')) return next();
-
+  console.log('this.isModified', this.isModified('password'));
+  console.log('this.isNew', this.isNew);
+  console.log('inside pre');
   //hash the password
   this.password = await bcrypt.hash(this.password, 12);
 
@@ -64,6 +67,7 @@ userSchema.pre('save', async function (next) {
 });
 
 userSchema.pre('save', function (next) {
+  console.log('pre2');
   if (!this.isModified('password') || this.isNew) return next();
   console.log('passwordChangedAt');
   this.passwordChangedAt = Date.now() - 1000;
@@ -100,7 +104,7 @@ userSchema.methods.createPasswordResetToken = function () {
     .update(resetToken)
     .digest('hex');
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
-  console.log({ resetToken }, this.passwordResetToken);
+  // console.log({ resetToken }, this.passwordResetToken);
   return resetToken;
 };
 

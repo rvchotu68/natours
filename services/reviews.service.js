@@ -1,8 +1,10 @@
 const Review = require('../models/reviews.model');
-
+const ApiFeatures = require('../utils/apiFeatures');
 class ReviewService {
-  async getAllReviewsService(filter) {
-    return await Review.find(filter);
+  async getAllReviewsService(req, filter) {
+    const filters = new ApiFeatures(Review.find(filter), req.query);
+    filters.applyFilters();
+    return await filters.query;
   }
 
   async addNewReviewService(req) {
@@ -16,6 +18,10 @@ class ReviewService {
 
   async updateReviewService(id, req) {
     return await Review.findByIdAndUpdate(id, req.body);
+  }
+
+  async getReviewService(id) {
+    return await Review.findById(id);
   }
 }
 

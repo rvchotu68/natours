@@ -28,3 +28,23 @@ exports.createOne = (method) =>
       data: doc,
     });
   });
+
+exports.getOne = (method) =>
+  catchAsync(async (req, res, next) => {
+    const id = req.params.id || req.user._id;
+    const doc = await method(id);
+    if (!doc) return next(new AppError('No document found with the id', 404));
+    res.status(200).json({ status: 'success', data: doc });
+  });
+
+exports.getAll = (method) =>
+  catchAsync(async (req, res, next) => {
+    let filter = {};
+    if (req.params.tour) filter.tour = req.params.tour;
+    const doc = await method(req, filter);
+    res.status(200).json({
+      status: 'success',
+      results: doc.length,
+      data: doc,
+    });
+  });
