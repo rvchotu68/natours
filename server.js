@@ -6,7 +6,7 @@ process.on('uncaughtException', (err) => {
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 
-dotenv.config({ path: './ignore/config.env' });
+dotenv.config({ path: "./ignore/config.env" });
 const app = require('./app');
 
 const DB_URI = process.env.DATABASE_CLOUD.replace(

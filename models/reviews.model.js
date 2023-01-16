@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 
+//user defined requires
+const Tour = require('../models/tour.model');
+
 const reviewSchema = new mongoose.Schema(
   {
     review: {
@@ -30,6 +33,41 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
+//Review static method
+
+reviewSchema.statics.calculateAverageRatings = async function (tour) {
+  const data = await this.aggregate([
+    {
+      $match: { tour },
+    },
+    {
+      $group: {
+        _id: 'tour',
+        nRatings: {
+          $sum: 1,
+        },
+        ratingAverage: {
+          $avg: '$rating',
+        },
+      },
+    },
+  ]);
+
+  // console.log({ data });
+
+  if (data.length > 0) {
+    await Tour.findByIdAndUpdate(tour, {
+      ratingsAverage: data[0].ratingAverage,
+      ratingsQuantity: data[0].nRatings,
+    });
+  } else {
+    await Tour.findByIdAndUpdate(tour, {
+      ratingsAverage: 4.5,
+      ratingsQuantity: 0,
+    });
+  }
+};
+
 reviewSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'user',
@@ -37,5 +75,21 @@ reviewSchema.pre(/^find/, function (next) {
   });
   next();
 });
+
+//This is for calculating average rating whenever a new review was created.
+reviewSchema.post('save', async function (doc, next) {
+  // console.log('post save data:', doc);
+  this.constructor.calculateAverageRatings(doc.tour);
+  next();
+});
+
+//This is for calculating the average rating whenever the existing the review either updated or deleted.
+
+reviewSchema.post(/^findOneAnd/,async function(data,next){
+
+  // console.log("post find data:",data);
+  data.constructor.calculateAverageRatings(data.tour);
+  next();
+})
 
 module.exports = mongoose.model('Review', reviewSchema);
