@@ -33,6 +33,9 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
+//adding index to avoid multiple reviews from same user on the tour.
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
+
 //Review static method
 
 reviewSchema.statics.calculateAverageRatings = async function (tour) {
@@ -85,11 +88,10 @@ reviewSchema.post('save', async function (doc, next) {
 
 //This is for calculating the average rating whenever the existing the review either updated or deleted.
 
-reviewSchema.post(/^findOneAnd/,async function(data,next){
-
+reviewSchema.post(/^findOneAnd/, async function (data, next) {
   // console.log("post find data:",data);
   data.constructor.calculateAverageRatings(data.tour);
   next();
-})
+});
 
 module.exports = mongoose.model('Review', reviewSchema);

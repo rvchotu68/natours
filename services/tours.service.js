@@ -1,5 +1,6 @@
 const Tour = require('../models/tour.model');
 const ApiFeatures = require('../utils/apiFeatures');
+const catchAsync = require('../utils/catchAsync');
 
 exports.getAllToursData = async (req, filter) => {
   const features = new ApiFeatures(Tour.find(filter), req.query);
@@ -108,4 +109,42 @@ exports.getMonthlyPlanData = async (year) => {
     },
   ]);
   return data;
+};
+
+exports.getToursWithinService = async (distance, unit, lng, lat) => {
+  //The circle radius is measured in radian. radian = distance/radius of Earth in miles or distance/radius of earth in kms(3963.2 in miles and 6378.1 in kms)
+  const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+
+  const data = await Tour.find({
+    startLocation: {
+      $geoWithin: {
+        $centerSphere: [[lng, lat], radius],
+      },
+    },
+  });
+
+  return data;
+};
+
+exports.getDistancesService = async (unit, lng, lat) => {
+  const distances = await Tour.aggregate([
+    {
+      $geoNear: {
+        near: {
+          type: 'Point',
+          coordinates: [lng * 1, lat * 1],
+        },
+        distanceField: 'distance',
+        key: 'startLocation',
+      },
+    },
+    {
+      $project: {
+        name: 1,
+        distance: 1,
+      },
+    },
+  ]);
+
+  return distances;
 };

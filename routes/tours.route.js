@@ -11,10 +11,23 @@ const {
 } = require('../controllers/tours.controller');
 const authController = require('../controllers/auth.controller');
 const reviewRouter = require('./reviews.route');
+const tourController = require('../controllers/tours.controller');
 
 const router = express.Router();
 
 router.use('/:tour/reviews', reviewRouter);
+
+//For getting the near b trips  based on the user location and search distance
+
+router
+  .route('/tour-withIn/:distance/center/:lngLat/unit/:unit')
+  .get(tourController.getToursWithIn);
+
+//For getting the distances of the trip from the user location.
+
+router
+  .route('/distances/:lngLat/unit/:unit')
+  .get(tourController.getToursDistances);
 
 // router.param('id', checkID);
 router.route('/top-5-cheap').get(aliasTopTours, getAllTours);
