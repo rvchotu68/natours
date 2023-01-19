@@ -28,7 +28,7 @@ class AuthService {
   async loginService(email, password) {
     //check if the passwords are matching or not.
     const userData = await User.findOne({ email }).select('+password');
-    // console.log(userData);
+    // console.log({ userData });
     if (
       !userData ||
       !(await userData.verifyPassword(password, userData.password))

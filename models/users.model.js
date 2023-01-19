@@ -52,12 +52,9 @@ const userSchema = new mongoose.Schema({
 //Hashing the password to sage guard it against the attacks
 
 userSchema.pre('save', async function (next) {
-  console.log('pre1');
   //Check whether the password is modified or not.
   if (!this.isModified('password')) return next();
-  console.log('this.isModified', this.isModified('password'));
-  console.log('this.isNew', this.isNew);
-  console.log('inside pre');
+
   //hash the password
   this.password = await bcrypt.hash(this.password, 12);
 
