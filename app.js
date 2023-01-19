@@ -6,10 +6,14 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const path = require('path');
+const pug = require('pug');
 
 const tourRouter = require('./routes/tours.route');
 const userRouter = require('./routes/users.route');
 const reviewRouter = require('./routes/reviews.route');
+const viewRouter = require('./routes/view.route');
+
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
@@ -17,6 +21,10 @@ const app = express();
 
 //2.GLOBAL MIDDLEWARE
 
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
+app.use(express.static(path.join(__dirname, 'public')));
 //set security related http headers
 app.use(helmet());
 
@@ -54,6 +62,7 @@ app.use(
 );
 
 //different routes
+app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
