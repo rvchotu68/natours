@@ -8,6 +8,7 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const path = require('path');
 const pug = require('pug');
+const cookieParser = require('cookie-parser');
 
 const tourRouter = require('./routes/tours.route');
 const userRouter = require('./routes/users.route');
@@ -26,7 +27,7 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.static(path.join(__dirname, 'public')));
 //set security related http headers
-app.use(helmet());
+// app.use(helmet());
 
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
@@ -40,6 +41,9 @@ app.use('/api', limiter);
 
 //this is for putting the user data in the req.body
 app.use(express.json({ limit: '10kb' }));
+
+//this is for parsing the  cookie data
+app.use(cookieParser());
 
 //data sanitization against nosql query injection
 app.use(mongoSanitize());

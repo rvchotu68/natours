@@ -35,7 +35,8 @@ class AuthService {
     )
       return null;
     //return jwtToken if the user is verified or else return null.
-    return await this.createJWTToken(userData._id);
+
+    return userData;
   }
 
   async verifyJWTToken(token) {
@@ -63,6 +64,7 @@ class AuthService {
   }
 
   async sendCreatedToken(user, statusCode, res) {
+    console.log('sendCreatedToken');
     const jwtToken = await this.createJWTToken(user._id);
     const cookieOptions = {
       expires: new Date(
@@ -73,7 +75,7 @@ class AuthService {
 
     if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
     user.password = undefined;
-    res.cookie('jwtToken', jwtToken, cookieOptions);
+    res.cookie('jwt', jwtToken, cookieOptions);
     res.status(statusCode).json({
       status: 'success',
       jwtToken,

@@ -9,6 +9,7 @@ router.post('/signup', authController.signup);
 router.post('/login', authController.login);
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
+router.get('/logout', authController.logOutUser);
 
 //For remaining routes we need user to be authenticated
 router.use(authController.verifyUser);
