@@ -5,10 +5,12 @@ const sendMail = require('../utils/email');
 const User = require('../models/users.model');
 const { deleteUserService } = require('../services/auth.service');
 const handlerFactory = require('../utils/handler.factory');
+const Email = require('../utils/email');
 
 exports.signup = catchAsync(async (req, res, next) => {
   const data = await AuthService.signupService(req);
-
+  const url = `${req.protocol}://${req.get('host')}/me`;
+  await new Email(data, url).sendWelcome();
   AuthService.sendCreatedToken(data, 200, res);
 });
 
@@ -103,16 +105,18 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
   //send an email to the user with the reset token and link.
 
-  const resetURL = `${req.protocol}://${req.get(
-    'host'
-  )}/api/v1/users/resetpassword/${passwordResetToken}`;
-
   try {
-    await sendMail({
-      email,
-      subject: 'Password reset(token valid for 10 mins)',
-      message: `Forgot your password? \n Please reset your password using the link : ${resetURL}`,
-    });
+    const resetURL = `${req.protocol}://${req.get(
+      'host'
+    )}/api/v1/users/resetpassword/${passwordResetToken}`;
+
+    await new Email(user, resetURL).sendPasswordResetLink();
+
+    // await sendMail({
+    //   email,
+    //   subject: 'Password reset(token valid for 10 mins)',
+    //   message: `Forgot your password? \n Please reset your password using the link : ${resetURL}`,
+    // });
 
     res.status(200).json({
       status: 'success',
