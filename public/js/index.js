@@ -32,12 +32,12 @@ if (logoutElement) logoutElement.addEventListener('click', logout);
 
 if (userDataForm)
   userDataForm.addEventListener('submit', (event) => {
+    console.log('');
     event.preventDefault();
     const formData = new FormData();
     formData.append('name', document.getElementById('name').value);
     formData.append('email', document.getElementById('email').value);
     formData.append('photo', document.getElementById('photo').files[0]);
-    console.log(formData.values());
     updateUserSettings(formData, 'data');
   });
 
