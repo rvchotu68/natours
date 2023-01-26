@@ -18,6 +18,8 @@ router.patch('/updatePassword', authController.updatePassword);
 router.patch(
   '/updateMe',
   authController.restrictTo('user'),
+  usersController.uploadUserPhoto,
+  usersController.resizeUserPhoto,
   usersController.updateMe
 );
 router.get('/me', usersController.getMe);

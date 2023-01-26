@@ -1,4 +1,5 @@
 import '@babel/polyfill';
+import { doc } from 'prettier';
 
 import { login, logout } from './login';
 import { displayMap } from './mapBox';
@@ -32,9 +33,12 @@ if (logoutElement) logoutElement.addEventListener('click', logout);
 if (userDataForm)
   userDataForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    updateUserSettings({ name, email }, 'data');
+    const formData = new FormData();
+    formData.append('name', document.getElementById('name').value);
+    formData.append('email', document.getElementById('email').value);
+    formData.append('photo', document.getElementById('photo').files[0]);
+    console.log(formData.values());
+    updateUserSettings(formData, 'data');
   });
 
 if (userSettingForm)
