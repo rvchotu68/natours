@@ -4,6 +4,7 @@ import { doc } from 'prettier';
 import { login, logout } from './login';
 import { displayMap } from './mapBox';
 import { updateUserSettings } from './user';
+import { createStripeSession } from './stripe';
 
 console.log('index.js');
 
@@ -12,6 +13,7 @@ const mapElement = document.getElementById('map');
 const logoutElement = document.getElementById('logout');
 const userDataForm = document.querySelector('.form-user-data');
 const userSettingForm = document.querySelector('.form-user-settings');
+const bookBtn = document.getElementById('book-tour');
 
 if (mapElement) {
   const locations = JSON.parse(mapElement.dataset.locations);
@@ -59,4 +61,11 @@ if (userSettingForm)
     document.getElementById('password-current').value = '';
     document.getElementById('password').value = '';
     document.getElementById('password-confirm').value = '';
+  });
+
+if (bookBtn)
+  bookBtn.addEventListener('click', (event) => {
+    bookBtn.textContent = 'Processing...';
+    const tourId = event.target.dataset.tourId;
+    createStripeSession(tourId);
   });

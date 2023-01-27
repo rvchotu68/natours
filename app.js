@@ -14,6 +14,7 @@ const tourRouter = require('./routes/tours.route');
 const userRouter = require('./routes/users.route');
 const reviewRouter = require('./routes/reviews.route');
 const viewRouter = require('./routes/view.route');
+const bookingRouter = require('./routes/booking.route');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -70,6 +71,7 @@ app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/bookings', bookingRouter);
 //this is for handling undefined or wrong routes
 app.all('*', (req, res, next) => {
   next(new AppError(`${req.originalUrl} route not found`, 404));
