@@ -6,8 +6,6 @@ import { displayMap } from './mapBox';
 import { updateUserSettings } from './user';
 import { createStripeSession } from './stripe';
 
-console.log('index.js');
-
 const formElement = document.querySelector('.form--login');
 const mapElement = document.getElementById('map');
 const logoutElement = document.getElementById('logout');
@@ -25,7 +23,6 @@ if (formElement) {
     event.preventDefault();
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    // console.log(email, password);
     login(email, password);
   });
 }
@@ -34,7 +31,6 @@ if (logoutElement) logoutElement.addEventListener('click', logout);
 
 if (userDataForm)
   userDataForm.addEventListener('submit', (event) => {
-    console.log('');
     event.preventDefault();
     const formData = new FormData();
     formData.append('name', document.getElementById('name').value);

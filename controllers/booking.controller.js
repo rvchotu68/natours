@@ -18,7 +18,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
       req.user._id
     }&price=${tour.price}`,
     mode: 'payment',
-    cancel_url: `${req.protocol}://${req.get('host')}/${tourId}`,
+    cancel_url: `${req.protocol}://${req.get('host')}/`,
     client_reference_id: tourId,
     payment_method_types: ['card'],
     customer_email: req.user.email,
@@ -33,8 +33,6 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
       },
     ],
   });
-
-  console.log({ session });
 
   //send the create stripe session as response to the client.
 
@@ -58,11 +56,9 @@ exports.createBookingCheckout = catchAsync(async (req, res, next) => {
 exports.getMyBookings = catchAsync(async (req, res, next) => {
   //get tours booked by the user using user id.
   const bookings = await Booking.find({ user: req.user._id });
-  console.log({ bookings });
 
   //extract the tour id and store in a array.
   const tourIds = bookings.map((booking) => booking.tour._id);
-  console.log({ tourIds });
 
   //get tours based on the tour id stored in the array.
 

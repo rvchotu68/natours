@@ -19,18 +19,6 @@ exports.setTour = (req, res, next) => {
 
 exports.getAllReviews = handlerFactory.getAll(getAllReviewsService);
 
-// catchAsync(async (req, res, next) => {
-//   let filter = {};
-//   if (req.params.tour) filter.tour = req.params.tour;
-//   const reviews = await getAllReviewsService(filter);
-//   console.log({ reviews });
-//   res.status(200).json({
-//     status: 'success',
-//     reviewLength: reviews.length,
-//     reviews,
-//   });
-// });
-
 exports.setTourAndUser = (req, res, next) => {
   !req.body.tour && (req.body.tour = req.params.tour);
   !req.body.user && (req.body.user = req.user._id);

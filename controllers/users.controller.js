@@ -13,11 +13,9 @@ const {
 
 // const multerStorage = multer.diskStorage({
 //   destination: (req, file, cb) => {
-//     console.log('destination');
 //     cb(null, 'public/img/users');
 //   },
 //   filename: (req, file, cb) => {
-//     console.log('filename');
 //     const filename = `user-${req.user._id}-${Date.now()}.${
 //       file.mimetype.split('/')[1]
 //     }`;
@@ -66,7 +64,6 @@ exports.updateUser = handlerFactory.updateOne(updateUserDetails);
 
 exports.updateMe = catchAsync(async (req, res, next) => {
   //1)Create error if user posts password data
-  // console.log(req.file);
   if (req.body.password || req.body.confirmPassword)
     return next(
       new AppError('Please provide either name or email data to update. '),
@@ -76,7 +73,6 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   //2)Filter out unwanted fields names that are not allowed to be updated and update the user fields.
 
   const updatedData = await UserService.updateUserDetails(req.user._id, req);
-  // console.log({ updatedData });
   //3)Send the updated  user details to the client.
   res.status(200).json({
     status: 'success',

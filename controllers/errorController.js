@@ -23,7 +23,6 @@ const sendErrorProd = (res, req, err) => {
         message: err.message,
       });
     else {
-      // console.log('Error:', err);
       return res.status(err.statusCode).json({
         status: 'error',
         message: 'Something went wrong.',
@@ -55,7 +54,6 @@ const handleDuplicatesErrorDB = (err) => {
 
 const handleValidationErrorDB = (err) => {
   const errors = Object.values(err.errors).map((ele) => ele.message);
-  // console.log(errors);
   const message = `Invalid input. ${errors.join('. ')}`;
   return new AppError(message, 400);
 };
@@ -69,7 +67,6 @@ const handleJsonWebTokenError = () =>
   new AppError('Invalid user token. Please login to access the resource.', 401);
 
 module.exports = (err, req, res, next) => {
-  // console.log({ req });
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
@@ -77,13 +74,11 @@ module.exports = (err, req, res, next) => {
   else if (process.env.NODE_ENV.trim() === 'production') {
     let error = { ...err };
     error.message = err.message;
-    // console.log('error.message at 81', error.message);
     if (err.name === 'CastError') error = handleCastErrorDB(error);
     if (err.code === 11000) error = handleDuplicatesErrorDB(error);
     if (err.name === 'ValidationError') error = handleValidationErrorDB(error);
     if (err.name === 'TokenExpiredError') error = handleTokenExpiredError();
     if (err.name === 'JsonWebTokenError') error = handleJsonWebTokenError();
-    // console.log('error.message at 87', error.message);
     sendErrorProd(res, req, error);
   }
 };

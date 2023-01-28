@@ -17,7 +17,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 exports.login = catchAsync(async (req, res, next) => {
   //check if email and password are provided by the user or not.
   const { email, password } = req.body;
-  // console.log({ password, email });
+
   if (!email || !password)
     return next(new AppError('Please provide email and password', 400));
 
@@ -35,8 +35,6 @@ exports.login = catchAsync(async (req, res, next) => {
 
 exports.verifyUser = catchAsync(async (req, res, next) => {
   //check if the jwtToken is present in the request or not
-  // console.log(req.headers);
-  console.log('verifyUser()');
   let jwtToken = null;
   if (
     req.headers.authorization &&
@@ -47,11 +45,9 @@ exports.verifyUser = catchAsync(async (req, res, next) => {
 
   if (!jwtToken)
     return next(new AppError('The user is not authenticated.', '401'));
-  // console.log(jwtToken);
 
   //Verify JWTToken
   const decodedJWTToken = await AuthService.verifyJWTToken(jwtToken);
-  // console.log('decodedJWTToken', decodedJWTToken);
 
   //Check if user still exists
   const user = await AuthService.getUserById(decodedJWTToken.id);
@@ -72,7 +68,7 @@ exports.verifyUser = catchAsync(async (req, res, next) => {
     );
   req.user = user;
   res.locals.user = user;
-  console.log('exiting verifyUser()');
+
   next();
 });
 
@@ -112,12 +108,6 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
     await new Email(user, resetURL).sendPasswordResetLink();
 
-    // await sendMail({
-    //   email,
-    //   subject: 'Password reset(token valid for 10 mins)',
-    //   message: `Forgot your password? \n Please reset your password using the link : ${resetURL}`,
-    // });
-
     res.status(200).json({
       status: 'success',
       message: 'Reset link has been sent to the registered email.',
@@ -137,14 +127,12 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
 exports.resetPassword = catchAsync(async (req, res, next) => {
   const resetToken = req.params.token;
-  console.log({ resetToken });
 
   //Get the user based on reset token sent to the user and check if the token has expired or not.
 
   const hashedResetToken = await AuthService.createPasswordRestTokenHash(
     resetToken
   );
-  console.log({ hashedResetToken });
 
   const user = await AuthService.getUserByResetToken(hashedResetToken);
 
@@ -166,10 +154,8 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
-  console.log('updatePassword()');
   //extract the password from the req body
   const { currentPassword, newPassword, confirmNewPassword } = req.body;
-  console.log('at 168', req.body);
   if (!currentPassword || !newPassword || !confirmNewPassword)
     return next(
       new AppError(
@@ -179,8 +165,6 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
     );
   //check if the password is matching with the one stored in the db
   const user = await User.findOne({ _id: req.user._id }).select('+password');
-  console.log({ user });
-  console.log({ currentPassword, newPassword, confirmNewPassword });
   const isPasswordValid = await user.verifyPassword(
     currentPassword,
     user.password

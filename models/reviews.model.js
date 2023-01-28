@@ -56,8 +56,6 @@ reviewSchema.statics.calculateAverageRatings = async function (tour) {
     },
   ]);
 
-  // console.log({ data });
-
   if (data.length > 0) {
     await Tour.findByIdAndUpdate(tour, {
       ratingsAverage: data[0].ratingAverage,
@@ -81,7 +79,6 @@ reviewSchema.pre(/^find/, function (next) {
 
 //This is for calculating average rating whenever a new review was created.
 reviewSchema.post('save', async function (doc, next) {
-  // console.log('post save data:', doc);
   this.constructor.calculateAverageRatings(doc.tour);
   next();
 });
@@ -89,7 +86,6 @@ reviewSchema.post('save', async function (doc, next) {
 //This is for calculating the average rating whenever the existing the review either updated or deleted.
 
 reviewSchema.post(/^findOneAnd/, async function (data, next) {
-  // console.log("post find data:",data);
   data.constructor.calculateAverageRatings(data.tour);
   next();
 });

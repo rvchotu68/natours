@@ -9,6 +9,8 @@ const hpp = require('hpp');
 const path = require('path');
 const pug = require('pug');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
+const cors = require('cors');
 
 const tourRouter = require('./routes/tours.route');
 const userRouter = require('./routes/users.route');
@@ -21,14 +23,25 @@ const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
 
+app.enable('trust proxy');
+
 //2.GLOBAL MIDDLEWARE
 
+app.use(cors());
+app.options('*', cors()); // this is for allowing the special methods like delete,patch,put which will otherwise not be allowed by the same-origin.
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.static(path.join(__dirname, 'public')));
 //set security related http headers
-// app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      scriptSrc: ['*', 'self', 'blob:'],
+      defaultSrc: ['*', 'self', 'blob:'],
+    },
+  })
+);
 
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
@@ -39,6 +52,9 @@ const limiter = rateLimit({
   message: 'Too many requests.',
 });
 app.use('/api', limiter);
+
+//compression the files
+app.use(compression());
 
 //this is for putting the user data in the req.body
 app.use(express.json({ limit: '10kb' }));

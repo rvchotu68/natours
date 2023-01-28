@@ -9,12 +9,12 @@ export const createStripeSession = async (tourId) => {
     );
 
     const res = await axios.get(`/api/v1/bookings/checkout-session/${tourId}`);
-    console.log(res.data);
+
     stripe.redirectToCheckout({
       sessionId: res.data.session.id,
     });
   } catch (err) {
-    console.log('error:', err);
-    showAlert('something went wrong', 'error');
+    const error = err.response.data.message || 'Something went wrong.';
+    showAlert(error, 'error');
   }
 };

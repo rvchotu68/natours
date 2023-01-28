@@ -28,7 +28,7 @@ class AuthService {
   async loginService(email, password) {
     //check if the passwords are matching or not.
     const userData = await User.findOne({ email }).select('+password');
-    // console.log({ userData });
+
     if (
       !userData ||
       !(await userData.verifyPassword(password, userData.password))
@@ -40,7 +40,6 @@ class AuthService {
   }
 
   async verifyJWTToken(token) {
-    // console.log(token,"\n",process.env.JWT_SECRET_KEY);
     return await promisify(jwt.verify)(token, process.env.JWT_SECRET_KEY);
   }
 
@@ -64,7 +63,6 @@ class AuthService {
   }
 
   async sendCreatedToken(user, statusCode, res) {
-    console.log('sendCreatedToken');
     const jwtToken = await this.createJWTToken(user._id);
     const cookieOptions = {
       expires: new Date(

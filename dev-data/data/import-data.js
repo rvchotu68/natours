@@ -13,7 +13,6 @@ const reviews = JSON.parse(
   fs.readFileSync(`${__dirname}/reviews.json`, 'utf-8')
 );
 
-console.log(process.env.DATABASE_CLOUD);
 const DB_URI = process.env.DATABASE_CLOUD.replace(
   '<password>',
   process.env.PASSWORD

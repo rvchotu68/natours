@@ -13,21 +13,17 @@ class UsersService {
     Object.keys(dataObj).forEach((ele) => {
       if (fields.includes(ele)) updatedObject[ele] = dataObj[ele];
     });
-    // console.log({ updatedObject });
     return updatedObject;
   }
 
   async updateUserDetails(id, req) {
-    // console.log('updateUserDetails');
     let updatedData;
-    // console.log('req', req);
     req.user.role === 'admin'
       ? (updatedData = req.body)
       : (updatedData = this.filterObj(req.body, 'name', 'email'));
 
     if (req.file) updatedData.photo = req.file.filename;
 
-    // console.log({ updatedData });
     const userData = await User.findByIdAndUpdate(id, updatedData, {
       new: true,
       runValidators: true,

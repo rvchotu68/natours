@@ -85,7 +85,6 @@ exports.aliasTopTours = (req, res, next) => {
 };
 exports.getTourStats = catchAsync(async (req, res, next) => {
   const data = await getTourStatsData();
-  // console.log(data);
   res.status(200).json({
     status: 'success',
     message: data,
@@ -93,7 +92,6 @@ exports.getTourStats = catchAsync(async (req, res, next) => {
 });
 exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
   const data = await getMonthlyPlanData(req.params.year * 1);
-  // console.log(data);
   res.status(200).json({
     status: 'success',
     message: data,
