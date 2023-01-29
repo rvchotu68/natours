@@ -6,7 +6,7 @@ process.on('uncaughtException', (err) => {
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 
-dotenv.config({ path: "./ignore/config.env" });
+dotenv.config({ path: './ignore/config.env' });
 const app = require('./app');
 
 const DB_URI = process.env.DATABASE_CLOUD.replace(
@@ -35,5 +35,12 @@ process.on('unhandledRejection', (err) => {
   server.close(() => {
     console.log('Shutting down the server.');
     process.exit(1);
+  });
+});
+
+process.on('SIGTERM', () => {
+  console.log('👋 SIGTERM RECEIVED. Shutting down gracefully');
+  server.close(() => {
+    console.log('💥 Process terminated!');
   });
 });
