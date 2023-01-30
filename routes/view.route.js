@@ -6,6 +6,8 @@ const bookingController = require('../controllers/booking.controller');
 
 const router = express.Router();
 
+router.use(viewController.checkAlert);
+
 router.get('/me', authController.verifyUser, viewController.getAccount);
 router.get(
   '/my-bookings',

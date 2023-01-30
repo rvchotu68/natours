@@ -5,6 +5,7 @@ import { login, logout } from './login';
 import { displayMap } from './mapBox';
 import { updateUserSettings } from './user';
 import { createStripeSession } from './stripe';
+import { showAlert } from './alertHandler';
 
 const formElement = document.querySelector('.form--login');
 const mapElement = document.getElementById('map');
@@ -65,3 +66,7 @@ if (bookBtn)
     const tourId = event.target.dataset.tourId;
     createStripeSession(tourId);
   });
+
+const alertMsg = document.querySelector('body').dataset.alert;
+
+if (alertMsg) showAlert(alertMsg, 'success', 10);

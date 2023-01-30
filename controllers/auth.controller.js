@@ -11,7 +11,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   const data = await AuthService.signupService(req);
   const url = `${req.protocol}://${req.get('host')}/me`;
   await new Email(data, url).sendWelcome();
-  AuthService.sendCreatedToken(data, 200, res);
+  AuthService.sendCreatedToken(data, 200, req, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -30,7 +30,7 @@ exports.login = catchAsync(async (req, res, next) => {
   //   status: 'success',
   //   jwtToken,
   // });
-  AuthService.sendCreatedToken(userData, 200, res);
+  AuthService.sendCreatedToken(userData, 200, req, res);
 });
 
 exports.verifyUser = catchAsync(async (req, res, next) => {
@@ -150,7 +150,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   //update passwordChangedAt property for user.
 
   //Log the user in and send jwt token.
-  AuthService.sendCreatedToken(user, 200, res);
+  AuthService.sendCreatedToken(user, 200, req, res);
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
@@ -178,7 +178,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   user.confirmPassword = confirmNewPassword;
   await user.save();
   // Login the user and send new jwt token.
-  AuthService.sendCreatedToken(user, 200, res);
+  AuthService.sendCreatedToken(user, 200, req, res);
 });
 
 exports.deleteUser = handlerFactory.DeleteOne(deleteUserService);

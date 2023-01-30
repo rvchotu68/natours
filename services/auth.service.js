@@ -62,7 +62,7 @@ class AuthService {
     return await crypto.createHash('sha256').update(resetToken).digest('hex');
   }
 
-  async sendCreatedToken(user, statusCode, res) {
+  async sendCreatedToken(user, statusCode, req, res) {
     const jwtToken = await this.createJWTToken(user._id);
     const cookieOptions = {
       expires: new Date(

@@ -3,10 +3,10 @@ const hideAlert = () => {
   if (el) el.parentElement.removeChild(el);
 };
 
-export const showAlert = (text, type) => {
+export const showAlert = (text, type, time = 5) => {
   hideAlert();
   const markup = `<div class="alert alert--${type}">${text}</div>`;
   const element = document.querySelector('body');
   element.insertAdjacentHTML('afterbegin', markup);
-  setTimeout(() => hideAlert(), 2000);
+  setTimeout(() => hideAlert(), time * 1000);
 };

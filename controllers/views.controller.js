@@ -38,3 +38,19 @@ exports.getAccount = (req, res) => {
     title: 'Your Account',
   });
 };
+
+exports.checkAlert = (req, res, next) => {
+  const { alert } = req.query;
+
+  if (alert) {
+    let message;
+    switch (alert) {
+      case 'booking':
+        'Successfully booked the trip. If its not showed in the bookings tab, please try to open the bookings tab after some time.';
+    }
+
+    req.locals.alert = message;
+  }
+
+  return next();
+};
