@@ -68,5 +68,5 @@ if (bookBtn)
   });
 
 const alertMsg = document.querySelector('body').dataset.alert;
-
+console.log({ alertMsg });
 if (alertMsg) showAlert(alertMsg, 'success', 10);

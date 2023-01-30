@@ -47,10 +47,14 @@ exports.checkAlert = (req, res, next) => {
     switch (alert) {
       case 'booking':
         'Successfully booked the trip. If its not showed in the bookings tab, please try to open the bookings tab after some time.';
+        break;
+      default:
+        '';
+        break;
     }
 
     req.locals.alert = message;
   }
-
+  console.log(req.locals);
   return next();
 };
