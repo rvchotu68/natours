@@ -3,6 +3,7 @@ const stripe = require('stripe')(process.env.STRIPE_KEY);
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const Tour = require('../models/tour.model');
+const User = require('../models/users.model');
 const Booking = require('../models/booking.model');
 const handlerFactory = require('../utils/handler.factory');
 const BookingService = require('../services/booking.service');
@@ -14,9 +15,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const tour = await Tour.findById(tourId);
   //create a stripe session
   const session = await stripe.checkout.sessions.create({
-    success_url: `${req.protocol}://${req.get('host')}/?tour=${tourId}&user=${
-      req.user._id
-    }&price=${tour.price}`,
+    success_url: `${req.protocol}://${req.get('host')}/my-bookings`,
     mode: 'payment',
     cancel_url: `${req.protocol}://${req.get('host')}/`,
     client_reference_id: tourId,
@@ -26,7 +25,9 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
       {
         name: tour.name,
         description: tour.summary,
-        images: [`https://www.natours.dev/img/tours/${tour.imageCover}`],
+        images: [
+          `${req.protocol}://${req.get('host')}/img/tours/${tour.imageCover}`,
+        ],
         amount: tour.price * 81 * 100,
         currency: 'inr',
         quantity: 1,
@@ -83,3 +84,34 @@ exports.updateBooking = handlerFactory.updateOne(
 exports.deleteBooking = handlerFactory.DeleteOne(
   BookingService.deleteBookingService
 );
+
+const createWebhookBooking = async (session) => {
+  console.log({ session });
+  const tour = session.client_reference_id;
+  const user = (await User.findOne({ email: session.customer_email }))._id;
+  const price = session.amount_total / 100;
+
+  await Booking.create({ tour, user, price });
+};
+
+exports.webhookBookingCheckout = (req, res, next) => {
+  const signature = req.headers['STRIPE_SIGNATURE'];
+
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      request.body,
+      sig,
+      process.env.STRIPE_BOOKING_SECRET
+    );
+  } catch (err) {
+    response.status(400).send(`Webhook Error: ${err.message}`);
+    return;
+  }
+
+  if (event.type === 'checkout.session.completed')
+    createWebhookBooking(event.data.object);
+
+  res.status(200).json({ received: true });
+};

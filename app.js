@@ -20,6 +20,7 @@ const bookingRouter = require('./routes/booking.route');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
+const bookingController = require('./controllers/booking.controller');
 
 const app = express();
 
@@ -55,6 +56,14 @@ app.use('/api', limiter);
 
 //compression the files
 app.use(compression());
+
+//creating a post endpoint for the stripe payment event.
+
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  bookingController.webhookBookingCheckout
+);
 
 //this is for putting the user data in the req.body
 app.use(express.json({ limit: '10kb' }));
