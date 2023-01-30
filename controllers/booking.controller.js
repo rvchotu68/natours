@@ -97,6 +97,7 @@ const createWebhookBooking = async (session) => {
 };
 
 exports.webhookBookingCheckout = (req, res, next) => {
+  console.log('webhookBookingCheckout');
   const signature = req.headers['STRIPE_SIGNATURE'];
 
   let event;
@@ -111,9 +112,10 @@ exports.webhookBookingCheckout = (req, res, next) => {
     response.status(400).send(`Webhook Error: ${err.message}`);
     return;
   }
-
+  console.log({ event });
   if (event.type === 'checkout.session.completed')
     createWebhookBooking(event.data.object);
 
+  console.log('sending response to striper server');
   res.status(200).json({ received: true });
 };
