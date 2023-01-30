@@ -61,6 +61,10 @@ app.use(compression());
 
 app.post(
   '/webhook-checkout',
+  (req, res, next) => {
+    console.log('hi');
+    next();
+  },
   express.raw({ type: 'application/json' }),
   bookingController.webhookBookingCheckout
 );
