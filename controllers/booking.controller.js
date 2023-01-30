@@ -88,6 +88,7 @@ exports.deleteBooking = handlerFactory.DeleteOne(
 );
 
 const createWebhookBooking = async (session) => {
+  console.log('createWebhookBooking');
   console.log({ session });
   const tour = session.client_reference_id;
   const user = (await User.findOne({ email: session.customer_email }))._id;
@@ -103,16 +104,20 @@ exports.webhookBookingCheckout = (req, res, next) => {
 
   let event;
   console.log('event');
+  console.log(req.body);
   try {
+    console.log('inside try');
     event = stripe.webhooks.constructEvent(
       req.body,
       signature,
       process.env.STRIPE_BOOKING_SECRET
     );
+    console.log('after stripe constructEvent');
   } catch (err) {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
   console.log({ event });
+  console.log(event.type);
   if (event.type === 'checkout.session.completed')
     createWebhookBooking(event.data.object);
 

@@ -11,6 +11,7 @@ const pug = require('pug');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 
 const tourRouter = require('./routes/tours.route');
 const userRouter = require('./routes/users.route');
@@ -65,7 +66,7 @@ app.post(
     console.log('hi');
     next();
   },
-  express.raw({ type: 'application/json' }),
+  bodyParser.raw({ type: 'application/json' }),
   bookingController.webhookBookingCheckout
 );
 
