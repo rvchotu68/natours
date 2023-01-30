@@ -67,6 +67,5 @@ if (bookBtn)
     createStripeSession(tourId);
   });
 
-const alertMsg = document.querySelector('body').dataset.alert;
-console.log({ alertMsg });
-if (alertMsg) showAlert(alertMsg, 'success', 10);
+const alertMessage = document.querySelector('body').dataset.alert;
+if (alertMessage) showAlert(alertMessage, 'success', 20);

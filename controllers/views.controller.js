@@ -41,20 +41,8 @@ exports.getAccount = (req, res) => {
 
 exports.checkAlert = (req, res, next) => {
   const { alert } = req.query;
-
-  if (alert) {
-    let message;
-    switch (alert) {
-      case 'booking':
-        'Successfully booked the trip. If its not showed in the bookings tab, please try to open the bookings tab after some time.';
-        break;
-      default:
-        '';
-        break;
-    }
-
-    req.locals.alert = message;
-  }
-  console.log(req.locals);
-  return next();
+  if (alert === 'booking')
+    res.locals.alert =
+      "Your booking was successful! Please check your email for a confirmation. If your booking doesn't show up here immediately, please come back later.";
+  next();
 };
